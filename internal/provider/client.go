@@ -117,6 +117,16 @@ func (c *Client) prepareRequest(ctx context.Context, method, requestPath string,
 	request.Header.Set("Accept", "application/json")
 	request.Header.Set("x-api-key", c.APIKey)
 	request.Header.Set("Authorization", "Bearer "+c.APIKey)
+	if c.CloudRunIDToken != nil {
+		token, err := c.CloudRunIDToken(ctx)
+		if err != nil {
+			return nil, requestSafety{}, safeTransportFailure(err)
+		}
+		if token == "" {
+			return nil, requestSafety{}, &safeTransportError{kind: "Cloud Run IAM ID token is empty", terminal: true}
+		}
+		request.Header.Set("X-Serverless-Authorization", "Bearer "+token)
+	}
 	if c.LiteLLMChangedBy != "" {
 		request.Header.Set("litellm-changed-by", c.LiteLLMChangedBy)
 	}

@@ -126,7 +126,7 @@ func TestProviderSchema(t *testing.T) {
 	if resp.Diagnostics.HasError() {
 		t.Fatalf("provider schema diagnostics: %v", resp.Diagnostics.Errors())
 	}
-	for _, attr := range []string{"api_base", "api_key", "insecure_skip_verify", "litellm_changed_by"} {
+	for _, attr := range []string{"api_base", "api_key", "insecure_skip_verify", "litellm_changed_by", "cloud_run_audience"} {
 		if _, ok := resp.Schema.Attributes[attr]; !ok {
 			t.Errorf("provider schema missing attribute %q", attr)
 		}

@@ -16,13 +16,13 @@ For security vulnerabilities, follow [SECURITY.md](SECURITY.md) instead of openi
 Development requires Go 1.24 or newer. Terraform 1.1 or newer and OpenTofu 1.6 or newer are supported clients. The tested backend is LiteLLM 1.106.4.
 
 ```bash
-git clone https://github.com/ncecere/terraform-provider-litellm.git
+git clone https://github.com/ctg-consulting/terraform-provider-litellm.git
 cd terraform-provider-litellm
 go mod download
 go test ./...
 ```
 
-The repository's historical Go module identifier is retained for provider-build compatibility. This repository is distributed as a Terraform provider executable and does not expose a supported Go library API. Consumers should use `registry.terraform.io/ncecere/litellm`, not import the Go module.
+The repository's historical Go module identifier is retained for provider-build compatibility. This repository is distributed as a Terraform provider executable and does not expose a supported Go library API. Consumers should use `registry.terraform.io/ctg-consulting/litellm`, not import the Go module.
 
 ## Validation
 

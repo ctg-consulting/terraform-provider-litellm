@@ -33,8 +33,8 @@ terraform {
 
   required_providers {
     litellm = {
-      source  = "registry.terraform.io/ncecere/litellm"
-      version = ">= 2.0.1, < 3.0.0"
+      source  = "registry.terraform.io/ctg-consulting/litellm"
+      version = ">= 2.3.0, < 3.0.0"
     }
   }
 }
@@ -45,16 +45,26 @@ provider "litellm" {
 }
 ```
 
-Run `terraform init -upgrade` (or `tofu init -upgrade`) after changing the version constraint. The published source is exactly `registry.terraform.io/ncecere/litellm`.
-
-Correcting the provider binary's served address to that published source does not change protocol 6, provider or resource schemas, HCL types, state values, IDs, or import formats. Normal state created with the published `ncecere/litellm` source needs no migration. If development-only configuration actually recorded state under the unpublished `registry.terraform.io/nicholas-cecere/litellm` address, migrate it explicitly; the provider does not silently alias addresses:
+Run `terraform init -upgrade` (or `tofu init -upgrade`) after changing the version constraint. The CTG fork uses `registry.terraform.io/ctg-consulting/litellm`. Migrating state from the upstream provider requires an explicit source replacement:
 
 ```sh
 terraform state replace-provider \
-  registry.terraform.io/nicholas-cecere/litellm \
-  registry.terraform.io/ncecere/litellm
+  registry.terraform.io/ncecere/litellm \
+  registry.terraform.io/ctg-consulting/litellm
 # OpenTofu users can run the equivalent `tofu state replace-provider` command.
 ```
+
+To manage a LiteLLM gateway protected by Cloud Run IAM, configure both authentication layers:
+
+```hcl
+provider "litellm" {
+  api_base           = var.litellm_gateway_url
+  api_key            = var.litellm_master_key
+  cloud_run_audience = var.litellm_gateway_url
+}
+```
+
+Google Application Default Credentials must resolve to a principal with `roles/run.invoker` on the gateway. The provider refreshes an ID token for `X-Serverless-Authorization`; it keeps the LiteLLM key in `Authorization`. Cloud Run IAM is disabled when `cloud_run_audience` is omitted.
 
 Then, you can use the provider to manage LiteLLM resources. Here's an example of creating a model configuration:
 
@@ -233,7 +243,7 @@ for reproduction, upgrade review, and FastAPI/Pydantic limitations.
 
 1. Clone the repository:
 ```sh
-git clone https://github.com/ncecere/terraform-provider-litellm.git
+git clone https://github.com/ctg-consulting/terraform-provider-litellm.git
 ```
 
 2. Enter the repository directory:
@@ -246,7 +256,7 @@ cd terraform-provider-litellm
 make install
 ```
 
-The historical Go module identifier is retained for provider-build compatibility. This repository is distributed as a Terraform provider executable and does not expose a supported Go library API. Use `registry.terraform.io/ncecere/litellm` in Terraform or OpenTofu configurations rather than importing the Go module.
+The historical Go module identifier is retained for provider-build compatibility. This repository is distributed as a Terraform provider executable and does not expose a supported Go library API. Use `registry.terraform.io/ctg-consulting/litellm` in Terraform or OpenTofu configurations rather than importing the Go module.
 
 ### Development Commands
 

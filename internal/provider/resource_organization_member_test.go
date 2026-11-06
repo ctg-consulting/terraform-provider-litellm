@@ -1341,7 +1341,7 @@ func TestOrganizationMemberEmailCreatePartialStateIsKnownThroughProtocolLifecycl
 		"api_base":             tftypes.NewValue(tftypes.String, server.URL),
 		"api_key":              tftypes.NewValue(tftypes.String, "admin"),
 		"insecure_skip_verify": tftypes.NewValue(tftypes.Bool, false),
-		"litellm_changed_by":   tftypes.NewValue(tftypes.String, nil),
+		"litellm_changed_by":   tftypes.NewValue(tftypes.String, nil), "cloud_run_audience": tftypes.NewValue(tftypes.String, nil),
 	})
 	configureResponse, err := protocolServer.ConfigureProvider(ctx, &tfprotov6.ConfigureProviderRequest{
 		TerraformVersion: "test",
@@ -1490,7 +1490,7 @@ func TestOrganizationMemberCanonicalMismatchPartialStateThroughProtocol(t *testi
 		"api_base":             tftypes.NewValue(tftypes.String, server.URL),
 		"api_key":              tftypes.NewValue(tftypes.String, "admin"),
 		"insecure_skip_verify": tftypes.NewValue(tftypes.Bool, false),
-		"litellm_changed_by":   tftypes.NewValue(tftypes.String, nil),
+		"litellm_changed_by":   tftypes.NewValue(tftypes.String, nil), "cloud_run_audience": tftypes.NewValue(tftypes.String, nil),
 	})
 	configureResponse, err := protocolServer.ConfigureProvider(ctx, &tfprotov6.ConfigureProviderRequest{
 		TerraformVersion: "test",

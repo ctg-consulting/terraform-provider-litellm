@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.3.0] - 2026-11-06
+
+### Upgrade Notes
+- This CTG fork uses `registry.terraform.io/ctg-consulting/litellm` and constrains the provider to `>= 2.3.0, < 3.0.0`. Terraform >= 1.1.0, OpenTofu >= 1.6.0, Go >= 1.24.0, and the exactly LiteLLM 1.106.4 acceptance backend remain the tested baselines. Optional write-only attributes require Terraform or OpenTofu >= 1.11.0.
+- Set `cloud_run_audience` to the Cloud Run service URL to enable IAM authentication with Google Application Default Credentials. The existing LiteLLM API key remains required and is sent in `Authorization`; the ID token is sent in `X-Serverless-Authorization`. No proxy or static ID token is needed.
+
+### Added
+- Optional Cloud Run IAM authentication for provider-managed LiteLLM resources, with ID token refresh for each request and no change to non-Cloud Run configurations.
+
 ## [2.2.3] - 2026-11-03
 
 ### Upgrade Notes

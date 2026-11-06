@@ -10,8 +10,8 @@ terraform {
 
   required_providers {
     litellm = {
-      source  = "registry.terraform.io/ncecere/litellm"
-      version = ">= 2.0.1, < 3.0.0"
+      source  = "registry.terraform.io/ctg-consulting/litellm"
+      version = ">= 2.3.0, < 3.0.0"
     }
   }
 }
@@ -68,12 +68,12 @@ The baseline clients are Terraform 1.1.0 or later (provider protocol 6.0) and Op
 
 The optional write-only attributes `litellm_key.key_wo`, `litellm_key.send_invite_email`, `litellm_user.send_invite_email`, and `litellm_jwt_key_mapping.key_wo` require Terraform or OpenTofu 1.11.0 or later only when configured; they do not raise the global client minimum. `litellm_jwt_key_mapping.key_hash` maps a key without a write-only attribute. Run `terraform init -upgrade` or `tofu init -upgrade` after updating the provider constraint.
 
-The published provider source is exactly `registry.terraform.io/ncecere/litellm`. Correcting the executable's served address does not change protocol 6, schemas, HCL types, state values, IDs, or import formats, so normal state under the published source needs no migration. Development-only state actually recorded under the unpublished `registry.terraform.io/nicholas-cecere/litellm` address must be migrated explicitly; no address alias is installed:
+The CTG fork uses `registry.terraform.io/ctg-consulting/litellm`. State created by the upstream `ncecere/litellm` provider requires an explicit source replacement:
 
 ```sh
 terraform state replace-provider \
-  registry.terraform.io/nicholas-cecere/litellm \
-  registry.terraform.io/ncecere/litellm
+  registry.terraform.io/ncecere/litellm \
+  registry.terraform.io/ctg-consulting/litellm
 # Use `tofu state replace-provider` with the same addresses for OpenTofu.
 ```
 
@@ -84,6 +84,7 @@ The following arguments are supported in the provider block:
 * `api_base` - (Required) The base URL of your LiteLLM instance. Can also be set via the `LITELLM_API_BASE` environment variable.
 * `api_key` - (Required) The API key for authenticating with LiteLLM. Can also be set via the `LITELLM_API_KEY` environment variable.
 * `insecure_skip_verify` - (Optional) Skip TLS certificate verification. Defaults to `false`.
+* `cloud_run_audience` - (Optional) Cloud Run service URL used as the ID token audience. Also accepts `LITELLM_CLOUD_RUN_AUDIENCE`. Google Application Default Credentials supply refreshed ID tokens in `X-Serverless-Authorization`; the LiteLLM API key stays in `Authorization`. The caller requires `roles/run.invoker` on the service. The API URL must use HTTPS.
 * `litellm_changed_by` - (Optional) Value for the litellm-changed-by header to track actions performed by authorized users.
 
 ## Authentication
@@ -194,19 +195,19 @@ The provider includes comprehensive examples in the `examples/` directory:
 
 | Example | Description |
 |---------|-------------|
-| [minimal](https://github.com/ncecere/terraform-provider-litellm/tree/main/examples/minimal) | Simplest possible setup |
-| [complete](https://github.com/ncecere/terraform-provider-litellm/tree/main/examples/complete) | Full enterprise configuration |
-| [multi-provider](https://github.com/ncecere/terraform-provider-litellm/tree/main/examples/multi-provider) | Multiple LLM providers |
-| [data-sources](https://github.com/ncecere/terraform-provider-litellm/tree/main/examples/data-sources) | Using data sources |
-| [mcp-servers](https://github.com/ncecere/terraform-provider-litellm/tree/main/examples/mcp-servers) | MCP server configurations |
-| [search-tools](https://github.com/ncecere/terraform-provider-litellm/tree/main/examples/search-tools) | Search tool configurations |
+| [minimal](https://github.com/ctg-consulting/terraform-provider-litellm/tree/main/examples/minimal) | Simplest possible setup |
+| [complete](https://github.com/ctg-consulting/terraform-provider-litellm/tree/main/examples/complete) | Full enterprise configuration |
+| [multi-provider](https://github.com/ctg-consulting/terraform-provider-litellm/tree/main/examples/multi-provider) | Multiple LLM providers |
+| [data-sources](https://github.com/ctg-consulting/terraform-provider-litellm/tree/main/examples/data-sources) | Using data sources |
+| [mcp-servers](https://github.com/ctg-consulting/terraform-provider-litellm/tree/main/examples/mcp-servers) | MCP server configurations |
+| [search-tools](https://github.com/ctg-consulting/terraform-provider-litellm/tree/main/examples/search-tools) | Search tool configurations |
 
 ## Getting Started
 
 1. Install the provider by adding it to your Terraform configuration
 2. Configure your LiteLLM instance URL and API key
-3. Start with the [minimal example](https://github.com/ncecere/terraform-provider-litellm/tree/main/examples/minimal) to create basic resources
-4. Explore the [complete example](https://github.com/ncecere/terraform-provider-litellm/tree/main/examples/complete) for enterprise configurations
+3. Start with the [minimal example](https://github.com/ctg-consulting/terraform-provider-litellm/tree/main/examples/minimal) to create basic resources
+4. Explore the [complete example](https://github.com/ctg-consulting/terraform-provider-litellm/tree/main/examples/complete) for enterprise configurations
 
 ## Best Practices
 

@@ -6,7 +6,7 @@ package metadata
 
 const (
 	// ProviderSource is the exact source published in the Terraform Registry.
-	ProviderSource = "registry.terraform.io/ncecere/litellm"
+	ProviderSource = "registry.terraform.io/ctg-consulting/litellm"
 
 	// ProtocolVersion is the Terraform provider protocol advertised by releases.
 	ProtocolVersion = "6.0"
@@ -25,11 +25,11 @@ const (
 	TestedLiteLLMVersion = "1.106.4"
 
 	// CurrentProviderVersion is the release prepared by this source tree.
-	CurrentProviderVersion = "2.2.3"
+	CurrentProviderVersion = "2.3.0"
 
 	// MinimumProviderVersion is the stable lower bound for published examples.
 	// It must not move merely because a later compatible 2.x release is tagged.
-	MinimumProviderVersion    = "2.0.1"
-	ExampleProviderConstraint = ">= 2.0.1, < 3.0.0"
+	MinimumProviderVersion    = "2.3.0"
+	ExampleProviderConstraint = ">= 2.3.0, < 3.0.0"
 	TerraformRequiredVersion  = ">= 1.1.0"
 )

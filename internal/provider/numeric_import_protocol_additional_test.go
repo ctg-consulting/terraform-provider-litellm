@@ -107,7 +107,7 @@ func TestAdditionalNumericImportProtocolsAdoptOnceAndTransitionMarker(t *testing
 	if err != nil || accessGroupProtocolDiagnosticsHaveError(schemaResponse.Diagnostics) {
 		t.Fatalf("get provider schema: %v, %v", err, schemaResponse.Diagnostics)
 	}
-	providerValue, err := tftypes.ValueFromJSON([]byte(`{"api_base":"`+server.URL+`","api_key":"test-key","insecure_skip_verify":null,"litellm_changed_by":null}`), schemaResponse.Provider.ValueType())
+	providerValue, err := tftypes.ValueFromJSON([]byte(`{"api_base":"`+server.URL+`","api_key":"test-key","insecure_skip_verify":null,"litellm_changed_by":null,"cloud_run_audience":null}`), schemaResponse.Provider.ValueType())
 	if err != nil {
 		t.Fatalf("build provider config: %v", err)
 	}

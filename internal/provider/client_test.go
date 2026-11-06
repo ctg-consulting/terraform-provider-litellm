@@ -20,6 +20,57 @@ type roundTripFunc func(*http.Request) (*http.Response, error)
 
 func (f roundTripFunc) RoundTrip(request *http.Request) (*http.Response, error) { return f(request) }
 
+func TestClientCloudRunIAMKeepsLiteLLMKeyAndRefreshesToken(t *testing.T) {
+	t.Parallel()
+	var calls int
+	server := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+		calls++
+		if got := request.Header.Get("Authorization"); got != "Bearer sk-master" {
+			t.Errorf("LiteLLM authorization = %q", got)
+		}
+		if got := request.Header.Get("X-Serverless-Authorization"); got != fmt.Sprintf("Bearer id-token-%d", calls) {
+			t.Errorf("Cloud Run authorization = %q", got)
+		}
+		writer.Header().Set("Content-Type", "application/json")
+		_, _ = writer.Write([]byte(`{"ok":true}`))
+	}))
+	defer server.Close()
+
+	var issued int
+	client := &Client{
+		APIBase: server.URL, APIKey: "sk-master", HTTPClient: server.Client(),
+		CloudRunIDToken: func(context.Context) (string, error) {
+			issued++
+			return fmt.Sprintf("id-token-%d", issued), nil
+		},
+	}
+	for range 2 {
+		if err := client.DoRequestWithResponse(context.Background(), http.MethodGet, "/key/info", nil, nil); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if calls != 2 || issued != 2 {
+		t.Fatalf("requests = %d, token acquisitions = %d", calls, issued)
+	}
+}
+
+func TestClientCloudRunIAMFailsBeforeDispatchWithoutToken(t *testing.T) {
+	t.Parallel()
+	var dispatched bool
+	client := &Client{
+		APIBase: "https://example.invalid", APIKey: "sk-master",
+		HTTPClient: &http.Client{Transport: roundTripFunc(func(*http.Request) (*http.Response, error) {
+			dispatched = true
+			return nil, errors.New("unexpected dispatch")
+		})},
+		CloudRunIDToken: func(context.Context) (string, error) { return "", errors.New("credential-secret") },
+	}
+	err := client.DoRequestWithResponse(context.Background(), http.MethodGet, "/key/info", nil, nil)
+	if err == nil || dispatched || strings.Contains(err.Error(), "credential-secret") {
+		t.Fatalf("token failure: err = %v, dispatched = %t", err, dispatched)
+	}
+}
+
 type failingReadCloser struct{ err error }
 
 func (r failingReadCloser) Read([]byte) (int, error) { return 0, r.err }

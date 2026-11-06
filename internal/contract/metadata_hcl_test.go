@@ -20,7 +20,7 @@ import (
 	"github.com/zclconf/go-cty/cty"
 )
 
-const independentRegistryAddress = "registry.terraform.io/ncecere/litellm"
+const independentRegistryAddress = "registry.terraform.io/ctg-consulting/litellm"
 
 var (
 	publishedEntrypoints = []string{
@@ -122,7 +122,7 @@ func TestMakeInstallDefaultsMatchPublishedContract(t *testing.T) {
 	}
 
 	readme := readFile(t, filepath.Join(root, "README.md"))
-	if !strings.Contains(readme, "git clone https://github.com/ncecere/terraform-provider-litellm.git") {
+	if !strings.Contains(readme, "git clone https://github.com/ctg-consulting/terraform-provider-litellm.git") {
 		t.Fatal("README clone command does not use the canonical repository URL")
 	}
 	if !strings.Contains(readme, "make install") {
