@@ -35,7 +35,7 @@ func configuredImportProtocolServer(t *testing.T, ctx context.Context, apiBase s
 		t.Fatalf("schema: %v, %v", err, schemas.Diagnostics)
 	}
 	providerValue, err := tftypes.ValueFromJSON(
-		[]byte(`{"api_base":"`+apiBase+`","api_key":"test-key","insecure_skip_verify":null,"litellm_changed_by":null}`),
+		[]byte(`{"api_base":"`+apiBase+`","api_key":"test-key","insecure_skip_verify":null,"litellm_changed_by":null,"cloud_run_audience":null}`),
 		schemas.Provider.ValueType(),
 	)
 	if err != nil {
@@ -85,7 +85,7 @@ func TestModelImportPartialResponsesRetainStateUntilCompleteAdoption(t *testing.
 		t.Fatalf("schema: %v, %v", err, schemas.Diagnostics)
 	}
 	providerValue, err := tftypes.ValueFromJSON(
-		[]byte(`{"api_base":"`+server.URL+`","api_key":"test-key","insecure_skip_verify":null,"litellm_changed_by":null}`),
+		[]byte(`{"api_base":"`+server.URL+`","api_key":"test-key","insecure_skip_verify":null,"litellm_changed_by":null,"cloud_run_audience":null}`),
 		schemas.Provider.ValueType(),
 	)
 	if err != nil {
@@ -442,7 +442,7 @@ func TestImportMarkerSurvivesEmptyNullAndWrongIdentityBeforeValidRead(t *testing
 		t.Fatalf("schema: %v, %v", err, schemas.Diagnostics)
 	}
 	providerValue, err := tftypes.ValueFromJSON(
-		[]byte(`{"api_base":"`+server.URL+`","api_key":"test-key","insecure_skip_verify":null,"litellm_changed_by":null}`),
+		[]byte(`{"api_base":"`+server.URL+`","api_key":"test-key","insecure_skip_verify":null,"litellm_changed_by":null,"cloud_run_audience":null}`),
 		schemas.Provider.ValueType(),
 	)
 	if err != nil {

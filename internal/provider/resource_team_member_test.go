@@ -1230,7 +1230,7 @@ func TestTeamMemberIDOnlyProtocolLifecycleKeepsEmailUnmanaged(t *testing.T) {
 	providerType := schemaResponse.Provider.ValueType()
 	providerConfig := tftypes.NewValue(providerType, map[string]tftypes.Value{
 		"api_base": tftypes.NewValue(tftypes.String, api.URL), "api_key": tftypes.NewValue(tftypes.String, "admin"),
-		"insecure_skip_verify": tftypes.NewValue(tftypes.Bool, false), "litellm_changed_by": tftypes.NewValue(tftypes.String, nil),
+		"insecure_skip_verify": tftypes.NewValue(tftypes.Bool, false), "litellm_changed_by": tftypes.NewValue(tftypes.String, nil), "cloud_run_audience": tftypes.NewValue(tftypes.String, nil),
 	})
 	configured, err := protocolServer.ConfigureProvider(ctx, &tfprotov6.ConfigureProviderRequest{
 		TerraformVersion: "test", Config: teamMemberProtocolDynamicValue(t, providerType, providerConfig),
@@ -1348,7 +1348,7 @@ func TestTeamMemberV0BothIdentityRefreshConvergesFromBudgetlessRoster(t *testing
 	providerType := schemaResponse.Provider.ValueType()
 	providerConfig := tftypes.NewValue(providerType, map[string]tftypes.Value{
 		"api_base": tftypes.NewValue(tftypes.String, server.URL), "api_key": tftypes.NewValue(tftypes.String, "admin"),
-		"insecure_skip_verify": tftypes.NewValue(tftypes.Bool, false), "litellm_changed_by": tftypes.NewValue(tftypes.String, nil),
+		"insecure_skip_verify": tftypes.NewValue(tftypes.Bool, false), "litellm_changed_by": tftypes.NewValue(tftypes.String, nil), "cloud_run_audience": tftypes.NewValue(tftypes.String, nil),
 	})
 	configured, err := protocolServer.ConfigureProvider(ctx, &tfprotov6.ConfigureProviderRequest{
 		TerraformVersion: "test", Config: teamMemberProtocolDynamicValue(t, providerType, providerConfig),
@@ -1428,7 +1428,7 @@ func TestTeamMemberAcceptedMalformedCreateRetainsUncertainIdentityThroughProtoco
 	providerType := schemaResponse.Provider.ValueType()
 	providerConfig := tftypes.NewValue(providerType, map[string]tftypes.Value{
 		"api_base": tftypes.NewValue(tftypes.String, server.URL), "api_key": tftypes.NewValue(tftypes.String, "admin"),
-		"insecure_skip_verify": tftypes.NewValue(tftypes.Bool, false), "litellm_changed_by": tftypes.NewValue(tftypes.String, nil),
+		"insecure_skip_verify": tftypes.NewValue(tftypes.Bool, false), "litellm_changed_by": tftypes.NewValue(tftypes.String, nil), "cloud_run_audience": tftypes.NewValue(tftypes.String, nil),
 	})
 	configured, err := protocolServer.ConfigureProvider(ctx, &tfprotov6.ConfigureProviderRequest{
 		TerraformVersion: "test", Config: teamMemberProtocolDynamicValue(t, providerType, providerConfig),

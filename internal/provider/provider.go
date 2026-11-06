@@ -4,8 +4,11 @@ import (
 	"context"
 	"crypto/tls"
 	"net/http"
+	"net/url"
 	"os"
 	"time"
+
+	"cloud.google.com/go/auth/credentials/idtoken"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/provider"
@@ -31,6 +34,7 @@ type LiteLLMProviderModel struct {
 	APIKey             types.String `tfsdk:"api_key"`
 	InsecureSkipVerify types.Bool   `tfsdk:"insecure_skip_verify"`
 	LiteLLMChangedBy   types.String `tfsdk:"litellm_changed_by"`
+	CloudRunAudience   types.String `tfsdk:"cloud_run_audience"`
 }
 
 // Client holds the HTTP client and configuration for API calls.
@@ -39,6 +43,7 @@ type Client struct {
 	APIKey           string
 	LiteLLMChangedBy string
 	HTTPClient       *http.Client
+	CloudRunIDToken  func(context.Context) (string, error)
 }
 
 func (p *LiteLLMProvider) Metadata(ctx context.Context, req provider.MetadataRequest, resp *provider.MetadataResponse) {
@@ -65,6 +70,10 @@ func (p *LiteLLMProvider) Schema(ctx context.Context, req provider.SchemaRequest
 			},
 			"litellm_changed_by": schema.StringAttribute{
 				Description: "Value for the litellm-changed-by header to track actions performed by authorized users.",
+				Optional:    true,
+			},
+			"cloud_run_audience": schema.StringAttribute{
+				Description: "Cloud Run service URL used as the IAM ID token audience. When set, Google Application Default Credentials supply a refreshed ID token in X-Serverless-Authorization while the LiteLLM API key remains in Authorization. Can also be set via LITELLM_CLOUD_RUN_AUDIENCE.",
 				Optional:    true,
 			},
 		},
@@ -110,6 +119,32 @@ func (p *LiteLLMProvider) Configure(ctx context.Context, req provider.ConfigureR
 		return
 	}
 
+	cloudRunAudience := os.Getenv("LITELLM_CLOUD_RUN_AUDIENCE")
+	if !config.CloudRunAudience.IsNull() {
+		cloudRunAudience = config.CloudRunAudience.ValueString()
+	}
+	var cloudRunIDToken func(context.Context) (string, error)
+	if cloudRunAudience != "" {
+		baseURL, baseErr := url.Parse(apiBase)
+		audienceURL, audienceErr := url.Parse(cloudRunAudience)
+		if baseErr != nil || baseURL.Scheme != "https" || baseURL.Host == "" || baseURL.User != nil || baseURL.RawQuery != "" || baseURL.Fragment != "" || audienceErr != nil || audienceURL.Scheme != "https" || audienceURL.Host == "" || audienceURL.User != nil || audienceURL.Path != "" || audienceURL.RawQuery != "" || audienceURL.Fragment != "" || (!config.InsecureSkipVerify.IsNull() && config.InsecureSkipVerify.ValueBool()) {
+			resp.Diagnostics.AddError("Invalid Cloud Run IAM configuration", "Cloud Run IAM requires HTTPS with certificate verification for api_base and an HTTPS service-origin cloud_run_audience without credentials, path, query, or fragment.")
+			return
+		}
+		creds, err := idtoken.NewCredentials(&idtoken.Options{Audience: cloudRunAudience})
+		if err != nil {
+			resp.Diagnostics.AddError("Cloud Run IAM credentials unavailable", "Could not initialize Google Application Default Credentials for the Cloud Run ID token.")
+			return
+		}
+		cloudRunIDToken = func(ctx context.Context) (string, error) {
+			token, err := creds.Token(ctx)
+			if err != nil {
+				return "", err
+			}
+			return token.Value, nil
+		}
+	}
+
 	// Default insecure_skip_verify to false
 	insecureSkipVerify := false
 	if !config.InsecureSkipVerify.IsNull() {
@@ -130,6 +165,7 @@ func (p *LiteLLMProvider) Configure(ctx context.Context, req provider.ConfigureR
 		APIBase:          apiBase,
 		APIKey:           apiKey,
 		LiteLLMChangedBy: litellmChangedBy,
+		CloudRunIDToken:  cloudRunIDToken,
 		HTTPClient: &http.Client{
 			Transport: tr,
 			Timeout:   30 * time.Second,

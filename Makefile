@@ -1,7 +1,7 @@
 HOSTNAME ?= registry.terraform.io
-NAMESPACE ?= ncecere
+NAMESPACE ?= ctg-consulting
 NAME ?= litellm
-VERSION ?= 2.2.3
+VERSION ?= 2.3.0
 OS_ARCH ?= $(shell go env GOOS)_$(shell go env GOARCH)
 
 default: install

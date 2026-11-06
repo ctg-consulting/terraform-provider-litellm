@@ -28,6 +28,7 @@ permissions:
 jobs:
   assembly:
     name: Offline assembly (${{ matrix.product }} ${{ matrix.version }})
+    if: github.repository == 'ncecere/terraform-provider-litellm'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
