@@ -8,7 +8,7 @@ import (
 	"os"
 	"time"
 
-	"cloud.google.com/go/auth/credentials/idtoken"
+	"cloud.google.com/go/auth/httptransport"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/provider"
@@ -131,7 +131,7 @@ func (p *LiteLLMProvider) Configure(ctx context.Context, req provider.ConfigureR
 			resp.Diagnostics.AddError("Invalid Cloud Run IAM configuration", "Cloud Run IAM requires HTTPS with certificate verification for api_base and an HTTPS service-origin cloud_run_audience without credentials, path, query, or fragment.")
 			return
 		}
-		creds, err := idtoken.NewCredentials(&idtoken.Options{Audience: cloudRunAudience})
+		creds, err := newCloudRunCredentials(cloudRunAudience, httptransport.NewClient)
 		if err != nil {
 			resp.Diagnostics.AddError("Cloud Run IAM credentials unavailable", "Could not initialize Google Application Default Credentials for the Cloud Run ID token.")
 			return
