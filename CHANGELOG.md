@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.3.3] - 2026-11-10
+
+### Upgrade Notes
+- No configuration or state migration is required. Cloud Run IAM continues to use Application Default Credentials.
+
+### Security
+- Authenticate Google IAM ID-token requests with ADC; the LiteLLM key remains separate from the Cloud Run identity token.
+
+### Fixed
+- Fix Cloud Run authentication with Workload Identity Federation by supplying an authenticated client when minting audience-bound ID tokens.
+
 ## [2.3.2] - 2026-11-09
 
 ### Upgrade Notes
