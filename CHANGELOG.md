@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.3.2] - 2026-11-09
+
+### Upgrade Notes
+- No configuration or state migration is required; resource behavior is unchanged.
+
+### Security
+- Key-creation diagnostics expose only HTTP status and confirmed dispatch/acceptance flags. Response bodies, transport details, request identifiers and key values remain hidden.
+
+### Fixed
+- Make generated-key creation failures diagnosable without enabling secret-bearing debug logs.
+
 ## [2.3.1] - 2026-11-06
 
 ### Upgrade Notes

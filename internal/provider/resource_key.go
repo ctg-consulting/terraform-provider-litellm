@@ -690,7 +690,7 @@ func (r *KeyResource) Create(ctx context.Context, req resource.CreateRequest, re
 		} else if writeOnlyMode {
 			resp.Diagnostics.AddError("Write-Only Key Creation Error", writeOnlyKeyCreateError(createErr))
 		} else {
-			resp.Diagnostics.AddError("Client Error", "Unable to create key. Response and transport details were omitted because they may contain key material.")
+			resp.Diagnostics.AddError("Client Error", generatedKeyCreateError(createErr))
 		}
 		return
 	}
