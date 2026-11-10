@@ -156,6 +156,12 @@ func (p *LiteLLMProvider) Configure(ctx context.Context, req provider.ConfigureR
 		litellmChangedBy = config.LiteLLMChangedBy.ValueString()
 	}
 
+	requestTimeout := 30 * time.Second
+	if cloudRunAudience != "" {
+		// Scale-to-zero gateways can exceed 30 seconds before handling a request.
+		requestTimeout = 120 * time.Second
+	}
+
 	// Create HTTP client with TLS configuration
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: insecureSkipVerify},
@@ -168,7 +174,7 @@ func (p *LiteLLMProvider) Configure(ctx context.Context, req provider.ConfigureR
 		CloudRunIDToken:  cloudRunIDToken,
 		HTTPClient: &http.Client{
 			Transport: tr,
-			Timeout:   30 * time.Second,
+			Timeout:   requestTimeout,
 		},
 	}
 

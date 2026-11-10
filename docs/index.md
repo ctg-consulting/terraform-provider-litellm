@@ -84,7 +84,7 @@ The following arguments are supported in the provider block:
 * `api_base` - (Required) The base URL of your LiteLLM instance. Can also be set via the `LITELLM_API_BASE` environment variable.
 * `api_key` - (Required) The API key for authenticating with LiteLLM. Can also be set via the `LITELLM_API_KEY` environment variable.
 * `insecure_skip_verify` - (Optional) Skip TLS certificate verification. Defaults to `false`.
-* `cloud_run_audience` - (Optional) Cloud Run service URL used as the ID token audience. Also accepts `LITELLM_CLOUD_RUN_AUDIENCE`. Google Application Default Credentials supply refreshed ID tokens in `X-Serverless-Authorization`; the LiteLLM API key stays in `Authorization`. The caller requires `roles/run.invoker` on the service. The API URL must use HTTPS.
+* `cloud_run_audience` - (Optional) Cloud Run service URL used as the ID token audience. Also accepts `LITELLM_CLOUD_RUN_AUDIENCE`. Google Application Default Credentials supply refreshed ID tokens in `X-Serverless-Authorization`; the LiteLLM API key stays in `Authorization`. The caller requires `roles/run.invoker` on the service. The API URL must use HTTPS. Requests allow 120 seconds for scale-to-zero cold starts; other providers retain the 30-second timeout. Terraform cancellation can end either request sooner.
 * `litellm_changed_by` - (Optional) Value for the litellm-changed-by header to track actions performed by authorized users.
 
 ## Authentication
