@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.3.5] - 2026-11-10
+
+### Upgrade Notes
+- No configuration or state migration is required. Cloud Run safe reads share the 120-second cold-start allowance; ordinary reads retain 30 seconds.
+
+### Security
+- Caller cancellation, the four-attempt limit and retry eligibility are unchanged.
+
+### Fixed
+- Extend the safe-read retry budget as well as the HTTP timeout so cold-start key refreshes can complete.
+
 ## [2.3.4] - 2026-11-10
 
 ### Upgrade Notes

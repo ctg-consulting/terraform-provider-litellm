@@ -57,7 +57,12 @@ func defaultSafeReadRetryHooks() safeReadRetryHooks {
 // 408, 429, or 5xx responses. Resource and data-source reads use this API only
 // after a deliberately scoped issue #202 migration.
 func (c *Client) DoReadWithResponse(ctx context.Context, method, requestPath string, body interface{}, result interface{}) error {
-	return c.doReadWithResponsePolicy(ctx, method, requestPath, body, result, defaultSafeReadRetryPolicy, defaultSafeReadRetryHooks())
+	policy := defaultSafeReadRetryPolicy
+	if c.CloudRunIDToken != nil {
+		// The retry budget must also allow the gateway's first cold-start response.
+		policy.maxElapsed = 120 * time.Second
+	}
+	return c.doReadWithResponsePolicy(ctx, method, requestPath, body, result, policy, defaultSafeReadRetryHooks())
 }
 
 func (c *Client) doReadWithResponsePolicy(ctx context.Context, method, requestPath string, body interface{}, result interface{}, policy safeReadRetryPolicy, hooks safeReadRetryHooks) error {
