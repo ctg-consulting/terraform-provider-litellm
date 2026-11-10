@@ -2,6 +2,7 @@ package provider
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
@@ -56,6 +57,11 @@ func TestCloudRunHTTPClientHonorsCancellation(t *testing.T) {
 
 func configuredCloudRunHTTPClient(t *testing.T) *http.Client {
 	t.Helper()
+	return configuredCloudRunClient(t).HTTPClient
+}
+
+func configuredCloudRunClient(t *testing.T) *Client {
+	t.Helper()
 	dir := t.TempDir()
 	subject := filepath.Join(dir, "subject")
 	if err := os.WriteFile(subject, []byte("test-subject"), 0600); err != nil {
@@ -82,5 +88,44 @@ func configuredCloudRunHTTPClient(t *testing.T) *http.Client {
 	if response.Diagnostics.HasError() {
 		t.Fatal(response.Diagnostics)
 	}
-	return response.ResourceData.(*Client).HTTPClient
+	return response.ResourceData.(*Client)
+}
+
+func TestCloudRunSafeReadWaitsForColdStart(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		select {
+		case <-time.After(31 * time.Second):
+			w.Header().Set("Content-Type", "application/json")
+			_ = json.NewEncoder(w).Encode(map[string]bool{"ready": true})
+		case <-r.Context().Done():
+		}
+	}))
+	defer server.Close()
+	client := configuredCloudRunClient(t)
+	defer client.HTTPClient.CloseIdleConnections()
+	client.APIBase = server.URL
+	client.CloudRunIDToken = func(context.Context) (string, error) { return "test-token", nil }
+	var result map[string]bool
+	if err := client.DoReadWithResponse(context.Background(), http.MethodGet, "/key/info", nil, &result); err != nil {
+		t.Fatalf("cold-start safe read failed: %v", err)
+	}
+	if !result["ready"] {
+		t.Fatal("response was not decoded")
+	}
+}
+
+func TestCloudRunSafeReadHonorsCallerDeadline(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { <-r.Context().Done() }))
+	defer server.Close()
+	client := configuredCloudRunClient(t)
+	defer client.HTTPClient.CloseIdleConnections()
+	client.APIBase = server.URL
+	client.CloudRunIDToken = func(context.Context) (string, error) { return "test-token", nil }
+	ctx, cancel := context.WithTimeout(context.Background(), 50*time.Millisecond)
+	defer cancel()
+	var result map[string]bool
+	err := client.DoReadWithResponse(ctx, http.MethodGet, "/key/info", nil, &result)
+	if !errors.Is(err, context.DeadlineExceeded) {
+		t.Fatalf("expected caller deadline, got %v", err)
+	}
 }
