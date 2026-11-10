@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.3.4] - 2026-11-10
+
+### Upgrade Notes
+- No configuration or state migration is required. Cloud Run requests allow up to 120 seconds; other endpoints retain the 30-second timeout.
+
+### Security
+- Caller cancellation and existing authentication remain unchanged. No additional retries are introduced.
+
+### Fixed
+- Allow scale-to-zero Cloud Run gateways to finish cold starts when refreshing or managing LiteLLM resources.
+
 ## [2.3.3] - 2026-11-10
 
 ### Upgrade Notes
